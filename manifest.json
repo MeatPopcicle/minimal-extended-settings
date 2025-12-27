@@ -1,0 +1,9 @@
+{
+	"id": "minimal-extended-settings",
+	"name": "Minimal Extended Settings",
+	"version": "1.0.0",
+	"minAppVersion": "1.11.1",
+	"description": "Change the colors, fonts and features of Minimal Extended Theme.",
+	"author": "gauol",
+	"isDesktopOnly": false
+}
