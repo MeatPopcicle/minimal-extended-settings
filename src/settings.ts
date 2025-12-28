@@ -1,4 +1,4 @@
-import { App, PluginSettingTab, SettingGroup } from 'obsidian';
+import { App, PluginSettingTab, Setting } from 'obsidian';
 import MinimalTheme from "./main";
 
 export interface MinimalSettings {
@@ -83,388 +83,371 @@ export class MinimalSettingsTab extends PluginSettingTab {
     const {containerEl} = this;
     containerEl.empty();
 
-    // Color scheme section
-    const colorSchemeDesc = document.createDocumentFragment();
-    colorSchemeDesc.appendText('For more options, use the ');
-    colorSchemeDesc.appendChild(
-      createEl('a', {
-        text: 'Style Settings',
-        href: 'obsidian://show-plugin?id=obsidian-style-settings',
-      })
-    );
-    colorSchemeDesc.appendText(' plugin. See ');
-    colorSchemeDesc.appendChild(
-      createEl('a', {
-        text: 'documentation',
-        href: 'https://minimal.guide/features/color-schemes',
-      })
-    );
-    colorSchemeDesc.appendText(' for details.');
+    containerEl.createEl('h3', {text: 'Color scheme'});
 
-    const colorHeading = document.createDocumentFragment();
-    colorHeading.createDiv({cls: 'setting-item-name', text: 'Color scheme'});
-    const colorDesc = colorHeading.createDiv({cls: 'setting-item-description'});
-    colorDesc.appendChild(colorSchemeDesc);
+    new Setting(containerEl)
+      .setName('Light mode color scheme')
+      .setDesc('Preset color options for light mode.')
+      .addDropdown(dropdown => dropdown
+        .addOption('minimal-default-light','Default')
+        .addOption('minimal-atom-light','Atom')
+        .addOption('minimal-ayu-light','Ayu')
+        .addOption('minimal-catppuccin-light','Catppuccin')
+        .addOption('minimal-eink-light','E-ink (beta)')
+        .addOption('minimal-everforest-light','Everforest')
+        .addOption('minimal-flexoki-light','Flexoki')
+        .addOption('minimal-gruvbox-light','Gruvbox')
+        .addOption('minimal-macos-light','macOS')
+        .addOption('minimal-nord-light','Nord')
+        .addOption('minimal-rose-pine-light','Rosé Pine')
+        .addOption('minimal-notion-light','Sky')
+        .addOption('minimal-solarized-light','Solarized')
+        .addOption('minimal-things-light','Things')
+        .addOption('minimal-tokyo-night-day','Tokyo Night Day')
+        .addOption('minimal-oxo-carbon-light','OXO Carbon')
+        .setValue(this.plugin.settings.lightScheme)
+        .onChange((value) => {
+          this.plugin.settings.lightScheme = value;
+          this.plugin.saveData(this.plugin.settings);
+          this.plugin.updateLightScheme();
+        }));
 
-    new SettingGroup(containerEl)
-      .setHeading(colorHeading)
-      .addSetting(setting => setting
-        .setName('Light mode color scheme')
-        .setDesc('Preset color options for light mode.')
-        .addDropdown(dropdown => dropdown
-          .addOption('minimal-default-light','Default')
-          .addOption('minimal-atom-light','Atom')
-          .addOption('minimal-ayu-light','Ayu')
-          .addOption('minimal-catppuccin-light','Catppuccin')
-          .addOption('minimal-eink-light','E-ink (beta)')
-          .addOption('minimal-everforest-light','Everforest')
-          .addOption('minimal-flexoki-light','Flexoki')
-          .addOption('minimal-gruvbox-light','Gruvbox')
-          .addOption('minimal-macos-light','macOS')
-          .addOption('minimal-nord-light','Nord')
-          .addOption('minimal-rose-pine-light','Rosé Pine')
-          .addOption('minimal-notion-light','Sky')
-          .addOption('minimal-solarized-light','Solarized')
-          .addOption('minimal-things-light','Things')
-          .addOption('minimal-tokyo-night-day','Tokyo Night Day')
-          .addOption('minimal-oxo-carbon-light','OXO Carbon')
-          .setValue(this.plugin.settings.lightScheme)
-          .onChange((value) => {
-            this.plugin.settings.lightScheme = value;
-            this.plugin.saveData(this.plugin.settings);
-            this.plugin.updateLightScheme();
-          })))
-      .addSetting(setting => setting
-        .setName('Light mode background contrast')
-        .setDesc('Level of contrast between sidebar and main content.')
-        .addDropdown(dropdown => dropdown
-          .addOption('minimal-light','Default')
-          .addOption('minimal-light-white','All white')
-          .addOption('minimal-light-tonal','Low contrast')
-          .addOption('minimal-light-contrast','High contrast')
-          .setValue(this.plugin.settings.lightStyle)
-          .onChange((value) => {
-            this.plugin.settings.lightStyle = value;
-            this.plugin.saveData(this.plugin.settings);
-            this.plugin.updateLightStyle();
-          })))
-      .addSetting(setting => setting
-        .setName('Dark mode color scheme')
-        .setDesc('Preset colors options for dark mode.')
-        .addDropdown(dropdown => dropdown
-          .addOption('minimal-default-dark','Default')
-          .addOption('minimal-atom-dark','Atom')
-          .addOption('minimal-ayu-dark','Ayu')
-          .addOption('minimal-catppuccin-dark','Catppuccin')
-          .addOption('minimal-dracula-dark','Dracula')
-          .addOption('minimal-eink-dark','E-ink (beta)')
-          .addOption('minimal-everforest-dark','Everforest')
-          .addOption('minimal-flexoki-dark','Flexoki')
-          .addOption('minimal-gruvbox-dark','Gruvbox')
-          .addOption('minimal-macos-dark','macOS')
-          .addOption('minimal-nord-dark','Nord')
-          .addOption('minimal-rose-pine-dark','Rosé Pine')
-          .addOption('minimal-notion-dark','Sky')
-          .addOption('minimal-solarized-dark','Solarized')
-          .addOption('minimal-things-dark','Things')
-          .addOption('minimal-tokyo-night-night','Tokyo Night')
-          .addOption('minimal-tokyo-night-storm','Tokyo Night Storm')
-          .addOption('minimal-monokai-classic','Monokai Classic')
-          .addOption('minimal-monokai-pro','Monokai Pro')
-          .addOption('minimal-oxo-carbon-dark','OXO Carbon')
-          .setValue(this.plugin.settings.darkScheme)
-          .onChange((value) => {
-            this.plugin.settings.darkScheme = value;
-            this.plugin.saveData(this.plugin.settings);
-            this.plugin.updateDarkScheme();
-          })))
-      .addSetting(setting => setting
-        .setName('Dark mode background contrast')
-        .setDesc('Level of contrast between sidebar and main content.')
-        .addDropdown(dropdown => dropdown
-          .addOption('minimal-dark','Default')
-          .addOption('minimal-dark-tonal','Low contrast')
-          .addOption('minimal-dark-black','True black')
-          .setValue(this.plugin.settings.darkStyle)
-          .onChange((value) => {
-            this.plugin.settings.darkStyle = value;
-            this.plugin.saveData(this.plugin.settings);
-            this.plugin.updateDarkStyle();
-          })));
+    new Setting(containerEl)
+      .setName('Light mode background contrast')
+      .setDesc('Level of contrast between sidebar and main content.')
+      .addDropdown(dropdown => dropdown
+        .addOption('minimal-light','Default')
+        .addOption('minimal-light-white','All white')
+        .addOption('minimal-light-tonal','Low contrast')
+        .addOption('minimal-light-contrast','High contrast')
+        .setValue(this.plugin.settings.lightStyle)
+        .onChange((value) => {
+          this.plugin.settings.lightStyle = value;
+          this.plugin.saveData(this.plugin.settings);
+          this.plugin.updateLightStyle();
+        }));
 
-    // Features section
-    new SettingGroup(containerEl)
-      .setHeading('Features')
-      .addSetting(setting => setting
-        .setName('Text labels for primary navigation')
-        .setDesc('Navigation items in the left sidebar uses text labels.')
-        .addToggle(toggle => toggle.setValue(this.plugin.settings.labeledNav)
-          .onChange((value) => {
-            this.plugin.settings.labeledNav = value;
-            this.plugin.saveData(this.plugin.settings);
-            this.plugin.refresh();
-          })))
-      .addSetting(setting => setting
-        .setName('Colorful window frame')
-        .setDesc('The top area of the app uses your accent color.')
-        .addToggle(toggle => toggle.setValue(this.plugin.settings.colorfulFrame)
-          .onChange((value) => {
-            this.plugin.settings.colorfulFrame = value;
-            this.plugin.saveData(this.plugin.settings);
-            this.plugin.refresh();
-          })))
-      .addSetting(setting => setting
-        .setName('Colorful active states')
-        .setDesc('Active file and menu items use your accent color.')
-        .addToggle(toggle => toggle.setValue(this.plugin.settings.colorfulActiveStates)
-          .onChange((value) => {
-            this.plugin.settings.colorfulActiveStates = value;
-            this.plugin.saveData(this.plugin.settings);
-            this.plugin.refresh();
-          })))
-      .addSetting(setting => setting
-        .setName('Colorful headings')
-        .setDesc('Headings use a different color for each size.')
-        .addToggle(toggle => toggle.setValue(this.plugin.settings.colorfulHeadings)
-          .onChange((value) => {
-            this.plugin.settings.colorfulHeadings = value;
-            this.plugin.saveData(this.plugin.settings);
-            this.plugin.refresh();
-          })))
-      .addSetting(setting => setting
-        .setName('Minimal status bar')
-        .setDesc('Turn off to use full-width status bar.')
-        .addToggle(toggle => toggle.setValue(this.plugin.settings.minimalStatus)
-          .onChange((value) => {
-            this.plugin.settings.minimalStatus = value;
-            this.plugin.saveData(this.plugin.settings);
-            this.plugin.refresh();
-          })))
-      .addSetting(setting => setting
-        .setName('Trim file names in sidebars')
-        .setDesc('Use ellipses to fit file names on a single line.')
-        .addToggle(toggle => toggle.setValue(this.plugin.settings.trimNames)
-          .onChange((value) => {
-            this.plugin.settings.trimNames = value;
-            this.plugin.saveData(this.plugin.settings);
-            this.plugin.refresh();
-          })))
-      .addSetting(setting => setting
-        .setName('Workspace borders')
-        .setDesc('Display divider lines between workspace elements.')
-        .addToggle(toggle => toggle.setValue(this.plugin.settings.bordersToggle)
-          .onChange((value) => {
-            this.plugin.settings.bordersToggle = value;
-            this.plugin.saveData(this.plugin.settings);
-            this.plugin.refresh();
-          })))
-      .addSetting(setting => setting
-        .setName('Focus mode')
-        .setDesc('Hide tab bar and status bar, hover to display. Can be toggled via hotkey.')
-        .addToggle(toggle => toggle.setValue(this.plugin.settings.focusMode)
-          .onChange((value) => {
-            this.plugin.settings.focusMode = value;
-            this.plugin.saveData(this.plugin.settings);
-            this.plugin.refresh();
-          })))
-      .addSetting(setting => setting
-        .setName('Underline internal links')
-        .setDesc('Show underlines on internal links.')
-        .addToggle(toggle => toggle.setValue(this.plugin.settings.underlineInternal)
-          .onChange((value) => {
-            this.plugin.settings.underlineInternal = value;
-            this.plugin.saveData(this.plugin.settings);
-            this.plugin.refresh();
-          })))
-      .addSetting(setting => setting
-        .setName('Underline external links')
-        .setDesc('Show underlines on external links.')
-        .addToggle(toggle => toggle.setValue(this.plugin.settings.underlineExternal)
-          .onChange((value) => {
-            this.plugin.settings.underlineExternal = value;
-            this.plugin.saveData(this.plugin.settings);
-            this.plugin.refresh();
-          })))
-      .addSetting(setting => setting
-        .setName('Maximize media')
-        .setDesc('Images and videos fill the width of the line.')
-        .addToggle(toggle => toggle.setValue(this.plugin.settings.fullWidthMedia)
-          .onChange((value) => {
-            this.plugin.settings.fullWidthMedia = value;
-            this.plugin.saveData(this.plugin.settings);
-            this.plugin.refresh();
-          })));
+    new Setting(containerEl)
+      .setName('Dark mode color scheme')
+      .setDesc('Preset colors options for dark mode.')
+      .addDropdown(dropdown => dropdown
+        .addOption('minimal-default-dark','Default')
+        .addOption('minimal-atom-dark','Atom')
+        .addOption('minimal-ayu-dark','Ayu')
+        .addOption('minimal-catppuccin-dark','Catppuccin')
+        .addOption('minimal-dracula-dark','Dracula')
+        .addOption('minimal-eink-dark','E-ink (beta)')
+        .addOption('minimal-everforest-dark','Everforest')
+        .addOption('minimal-flexoki-dark','Flexoki')
+        .addOption('minimal-gruvbox-dark','Gruvbox')
+        .addOption('minimal-macos-dark','macOS')
+        .addOption('minimal-nord-dark','Nord')
+        .addOption('minimal-rose-pine-dark','Rosé Pine')
+        .addOption('minimal-notion-dark','Sky')
+        .addOption('minimal-solarized-dark','Solarized')
+        .addOption('minimal-things-dark','Things')
+        .addOption('minimal-tokyo-night-night','Tokyo Night')
+        .addOption('minimal-tokyo-night-storm','Tokyo Night Storm')
+        .addOption('minimal-monokai-classic','Monokai Classic')
+        .addOption('minimal-monokai-pro','Monokai Pro')
+        .addOption('minimal-oxo-carbon-dark','OXO Carbon')
+        .setValue(this.plugin.settings.darkScheme)
+        .onChange((value) => {
+          this.plugin.settings.darkScheme = value;
+          this.plugin.saveData(this.plugin.settings);
+          this.plugin.updateDarkScheme();
+        }));
 
-    // Layout section
-    const layoutDesc = document.createDocumentFragment();
-    layoutDesc.appendText('These options can also be defined per file. See ');
-    layoutDesc.appendChild(
-      createEl('a', {
-        text: 'documentation',
-        href: 'https://minimal.guide/features/block-width',
-      })
-    );
-    layoutDesc.appendText(' for details.');
+    new Setting(containerEl)
+      .setName('Dark mode background contrast')
+      .setDesc('Level of contrast between sidebar and main content.')
+      .addDropdown(dropdown => dropdown
+        .addOption('minimal-dark','Default')
+        .addOption('minimal-dark-tonal','Low contrast')
+        .addOption('minimal-dark-black','True black')
+        .setValue(this.plugin.settings.darkStyle)
+        .onChange((value) => {
+          this.plugin.settings.darkStyle = value;
+          this.plugin.saveData(this.plugin.settings);
+          this.plugin.updateDarkStyle();
+        }));
 
-    const layoutHeading = document.createDocumentFragment();
-    layoutHeading.createDiv({cls: 'setting-item-name', text: 'Layout'});
-    const layoutDescDiv = layoutHeading.createDiv({cls: 'setting-item-description'});
-    layoutDescDiv.appendChild(layoutDesc);
+    containerEl.createEl('h3', {text: 'Features'});
 
-    new SettingGroup(containerEl)
-      .setHeading(layoutHeading)
-      .addSetting(setting => setting
-        .setName('Image grids')
-        .setDesc('Turn consecutive images into columns — to make a new row, add an extra line break between images.')
-        .addToggle(toggle => toggle.setValue(this.plugin.settings.imgGrid)
-          .onChange((value) => {
-            this.plugin.settings.imgGrid = value;
-            this.plugin.saveData(this.plugin.settings);
-            this.plugin.refresh();
-          })))
-      .addSetting(setting => setting
-        .setName('Chart width')
-        .setDesc('Default width for chart blocks.')
-        .addDropdown(dropdown => dropdown
-          .addOption('chart-default-width','Default')
-          .addOption('chart-wide','Wide line width')
-          .addOption('chart-max','Maximum line width')
-          .addOption('chart-100','100% pane width')
-          .setValue(this.plugin.settings.chartWidth)
-          .onChange((value) => {
-            this.plugin.settings.chartWidth = value;
-            this.plugin.saveData(this.plugin.settings);
-            this.plugin.refresh();
-          })))
-      .addSetting(setting => setting
-        .setName('Iframe width')
-        .setDesc('Default width for iframe blocks.')
-        .addDropdown(dropdown => dropdown
-          .addOption('iframe-default-width','Default')
-          .addOption('iframe-wide','Wide line width')
-          .addOption('iframe-max','Maximum line width')
-          .addOption('iframe-100','100% pane width')
-          .setValue(this.plugin.settings.iframeWidth)
-          .onChange((value) => {
-            this.plugin.settings.iframeWidth = value;
-            this.plugin.saveData(this.plugin.settings);
-            this.plugin.refresh();
-          })))
-      .addSetting(setting => setting
-        .setName('Image width')
-        .setDesc('Default width for image blocks.')
-        .addDropdown(dropdown => dropdown
-          .addOption('img-default-width','Default')
-          .addOption('img-wide','Wide line width')
-          .addOption('img-max','Maximum line width')
-          .addOption('img-100','100% pane width')
-          .setValue(this.plugin.settings.imgWidth)
-          .onChange((value) => {
-            this.plugin.settings.imgWidth = value;
-            this.plugin.saveData(this.plugin.settings);
-            this.plugin.refresh();
-          })))
-      .addSetting(setting => setting
-        .setName('Map width')
-        .setDesc('Default width for map blocks.')
-        .addDropdown(dropdown => dropdown
-          .addOption('map-default-width','Default')
-          .addOption('map-wide','Wide line width')
-          .addOption('map-max','Maximum line width')
-          .addOption('map-100','100% pane width')
-          .setValue(this.plugin.settings.mapWidth)
-          .onChange((value) => {
-            this.plugin.settings.mapWidth = value;
-            this.plugin.saveData(this.plugin.settings);
-            this.plugin.refresh();
-          })))
-      .addSetting(setting => setting
-        .setName('Table width')
-        .setDesc('Default width for table and Dataview blocks.')
-        .addDropdown(dropdown => dropdown
-          .addOption('table-default-width','Default')
-          .addOption('table-wide','Wide line width')
-          .addOption('table-max','Maximum line width')
-          .addOption('table-100','100% pane width')
-          .setValue(this.plugin.settings.tableWidth)
-          .onChange((value) => {
-            this.plugin.settings.tableWidth = value;
-            this.plugin.saveData(this.plugin.settings);
-            this.plugin.refresh();
-          })));
+    new Setting(containerEl)
+      .setName('Text labels for primary navigation')
+      .setDesc('Navigation items in the left sidebar uses text labels.')
+      .addToggle(toggle => toggle.setValue(this.plugin.settings.labeledNav)
+        .onChange((value) => {
+          this.plugin.settings.labeledNav = value;
+          this.plugin.saveData(this.plugin.settings);
+          this.plugin.refresh();
+        }));
 
-    // Typography section
-    new SettingGroup(containerEl)
-      .setHeading('Typography')
-      .addSetting(setting => setting
-        .setName('Text font size')
-        .setDesc('Used for the main text (default 16).')
-        .addText(text => text.setPlaceholder('16')
-          .setValue((this.plugin.settings.textNormal || '') + '')
-          .onChange((value) => {
-            this.plugin.settings.textNormal = parseFloat(value);
-            this.plugin.saveData(this.plugin.settings);
-            this.plugin.setFontSize();
-          })))
-      .addSetting(setting => setting
-        .setName('Small font size')
-        .setDesc('Used for text in the sidebars and tabs (default 13).')
-        .addText(text => text.setPlaceholder('13')
-          .setValue((this.plugin.settings.textSmall || '') + '')
-          .onChange((value) => {
-            this.plugin.settings.textSmall = parseFloat(value);
-            this.plugin.saveData(this.plugin.settings);
-            this.plugin.refresh();
-          })))
-      .addSetting(setting => setting
-        .setName('Line height')
-        .setDesc('Line height of text (default 1.5).')
-        .addText(text => text.setPlaceholder('1.5')
-          .setValue((this.plugin.settings.lineHeight || '') + '')
-          .onChange((value) => {
-            this.plugin.settings.lineHeight = parseFloat(value);
-            this.plugin.saveData(this.plugin.settings);
-            this.plugin.refresh();
-          })))
-      .addSetting(setting => setting
-        .setName('Normal line width')
-        .setDesc('Number of characters per line (default 40).')
-        .addText(text => text.setPlaceholder('40')
-          .setValue((this.plugin.settings.lineWidth || '') + '')
-          .onChange((value) => {
-            this.plugin.settings.lineWidth = parseInt(value.trim());
-            this.plugin.saveData(this.plugin.settings);
-            this.plugin.refresh();
-          })))
-      .addSetting(setting => setting
-        .setName('Wide line width')
-        .setDesc('Number of characters per line for wide elements (default 50).')
-        .addText(text => text.setPlaceholder('50')
-          .setValue((this.plugin.settings.lineWidthWide || '') + '')
-          .onChange((value) => {
-            this.plugin.settings.lineWidthWide = parseInt(value.trim());
-            this.plugin.saveData(this.plugin.settings);
-            this.plugin.refresh();
-          })))
-      .addSetting(setting => setting
-        .setName('Maximum line width %')
-        .setDesc('Percentage of space inside a pane that a line can fill (default 88).')
-        .addText(text => text.setPlaceholder('88')
-          .setValue((this.plugin.settings.maxWidth || '') + '')
-          .onChange((value) => {
-            this.plugin.settings.maxWidth = parseInt(value.trim());
-            this.plugin.saveData(this.plugin.settings);
-            this.plugin.refresh();
-          })))
-      .addSetting(setting => setting
-        .setName('Editor font')
-        .setDesc('Overrides the text font defined in Obsidian Appearance settings when in edit mode.')
-        .addText(text => text.setPlaceholder('')
-          .setValue((this.plugin.settings.editorFont || '') + '')
-          .onChange((value) => {
-            this.plugin.settings.editorFont = value;
-            this.plugin.saveData(this.plugin.settings);
-            this.plugin.refresh();
-          })));
+    new Setting(containerEl)
+      .setName('Colorful window frame')
+      .setDesc('The top area of the app uses your accent color.')
+      .addToggle(toggle => toggle.setValue(this.plugin.settings.colorfulFrame)
+        .onChange((value) => {
+          this.plugin.settings.colorfulFrame = value;
+          this.plugin.saveData(this.plugin.settings);
+          this.plugin.refresh();
+        }));
+
+    new Setting(containerEl)
+      .setName('Colorful active states')
+      .setDesc('Active file and menu items use your accent color.')
+      .addToggle(toggle => toggle.setValue(this.plugin.settings.colorfulActiveStates)
+        .onChange((value) => {
+          this.plugin.settings.colorfulActiveStates = value;
+          this.plugin.saveData(this.plugin.settings);
+          this.plugin.refresh();
+        }));
+
+    new Setting(containerEl)
+      .setName('Colorful headings')
+      .setDesc('Headings use a different color for each size.')
+      .addToggle(toggle => toggle.setValue(this.plugin.settings.colorfulHeadings)
+        .onChange((value) => {
+          this.plugin.settings.colorfulHeadings = value;
+          this.plugin.saveData(this.plugin.settings);
+          this.plugin.refresh();
+        }));
+
+    new Setting(containerEl)
+      .setName('Minimal status bar')
+      .setDesc('Turn off to use full-width status bar.')
+      .addToggle(toggle => toggle.setValue(this.plugin.settings.minimalStatus)
+        .onChange((value) => {
+          this.plugin.settings.minimalStatus = value;
+          this.plugin.saveData(this.plugin.settings);
+          this.plugin.refresh();
+        }));
+
+    new Setting(containerEl)
+      .setName('Trim file names in sidebars')
+      .setDesc('Use ellipses to fit file names on a single line.')
+      .addToggle(toggle => toggle.setValue(this.plugin.settings.trimNames)
+        .onChange((value) => {
+          this.plugin.settings.trimNames = value;
+          this.plugin.saveData(this.plugin.settings);
+          this.plugin.refresh();
+        }));
+
+    new Setting(containerEl)
+      .setName('Workspace borders')
+      .setDesc('Display divider lines between workspace elements.')
+      .addToggle(toggle => toggle.setValue(this.plugin.settings.bordersToggle)
+        .onChange((value) => {
+          this.plugin.settings.bordersToggle = value;
+          this.plugin.saveData(this.plugin.settings);
+          this.plugin.refresh();
+        }));
+
+    new Setting(containerEl)
+      .setName('Focus mode')
+      .setDesc('Hide tab bar and status bar, hover to display. Can be toggled via hotkey.')
+      .addToggle(toggle => toggle.setValue(this.plugin.settings.focusMode)
+        .onChange((value) => {
+          this.plugin.settings.focusMode = value;
+          this.plugin.saveData(this.plugin.settings);
+          this.plugin.refresh();
+        }));
+
+    new Setting(containerEl)
+      .setName('Underline internal links')
+      .setDesc('Show underlines on internal links.')
+      .addToggle(toggle => toggle.setValue(this.plugin.settings.underlineInternal)
+        .onChange((value) => {
+          this.plugin.settings.underlineInternal = value;
+          this.plugin.saveData(this.plugin.settings);
+          this.plugin.refresh();
+        }));
+
+    new Setting(containerEl)
+      .setName('Underline external links')
+      .setDesc('Show underlines on external links.')
+      .addToggle(toggle => toggle.setValue(this.plugin.settings.underlineExternal)
+        .onChange((value) => {
+          this.plugin.settings.underlineExternal = value;
+          this.plugin.saveData(this.plugin.settings);
+          this.plugin.refresh();
+        }));
+
+    new Setting(containerEl)
+      .setName('Maximize media')
+      .setDesc('Images and videos fill the width of the line.')
+      .addToggle(toggle => toggle.setValue(this.plugin.settings.fullWidthMedia)
+        .onChange((value) => {
+          this.plugin.settings.fullWidthMedia = value;
+          this.plugin.saveData(this.plugin.settings);
+          this.plugin.refresh();
+        }));
+
+    containerEl.createEl('h3', {text: 'Layout'});
+
+    new Setting(containerEl)
+      .setName('Image grids')
+      .setDesc('Turn consecutive images into columns — to make a new row, add an extra line break between images.')
+      .addToggle(toggle => toggle.setValue(this.plugin.settings.imgGrid)
+        .onChange((value) => {
+          this.plugin.settings.imgGrid = value;
+          this.plugin.saveData(this.plugin.settings);
+          this.plugin.refresh();
+        }));
+
+    new Setting(containerEl)
+      .setName('Chart width')
+      .setDesc('Default width for chart blocks.')
+      .addDropdown(dropdown => dropdown
+        .addOption('chart-default-width','Default')
+        .addOption('chart-wide','Wide line width')
+        .addOption('chart-max','Maximum line width')
+        .addOption('chart-100','100% pane width')
+        .setValue(this.plugin.settings.chartWidth)
+        .onChange((value) => {
+          this.plugin.settings.chartWidth = value;
+          this.plugin.saveData(this.plugin.settings);
+          this.plugin.refresh();
+        }));
+
+    new Setting(containerEl)
+      .setName('Iframe width')
+      .setDesc('Default width for iframe blocks.')
+      .addDropdown(dropdown => dropdown
+        .addOption('iframe-default-width','Default')
+        .addOption('iframe-wide','Wide line width')
+        .addOption('iframe-max','Maximum line width')
+        .addOption('iframe-100','100% pane width')
+        .setValue(this.plugin.settings.iframeWidth)
+        .onChange((value) => {
+          this.plugin.settings.iframeWidth = value;
+          this.plugin.saveData(this.plugin.settings);
+          this.plugin.refresh();
+        }));
+
+    new Setting(containerEl)
+      .setName('Image width')
+      .setDesc('Default width for image blocks.')
+      .addDropdown(dropdown => dropdown
+        .addOption('img-default-width','Default')
+        .addOption('img-wide','Wide line width')
+        .addOption('img-max','Maximum line width')
+        .addOption('img-100','100% pane width')
+        .setValue(this.plugin.settings.imgWidth)
+        .onChange((value) => {
+          this.plugin.settings.imgWidth = value;
+          this.plugin.saveData(this.plugin.settings);
+          this.plugin.refresh();
+        }));
+
+    new Setting(containerEl)
+      .setName('Map width')
+      .setDesc('Default width for map blocks.')
+      .addDropdown(dropdown => dropdown
+        .addOption('map-default-width','Default')
+        .addOption('map-wide','Wide line width')
+        .addOption('map-max','Maximum line width')
+        .addOption('map-100','100% pane width')
+        .setValue(this.plugin.settings.mapWidth)
+        .onChange((value) => {
+          this.plugin.settings.mapWidth = value;
+          this.plugin.saveData(this.plugin.settings);
+          this.plugin.refresh();
+        }));
+
+    new Setting(containerEl)
+      .setName('Table width')
+      .setDesc('Default width for table and Dataview blocks.')
+      .addDropdown(dropdown => dropdown
+        .addOption('table-default-width','Default')
+        .addOption('table-wide','Wide line width')
+        .addOption('table-max','Maximum line width')
+        .addOption('table-100','100% pane width')
+        .setValue(this.plugin.settings.tableWidth)
+        .onChange((value) => {
+          this.plugin.settings.tableWidth = value;
+          this.plugin.saveData(this.plugin.settings);
+          this.plugin.refresh();
+        }));
+
+    containerEl.createEl('h3', {text: 'Typography'});
+
+    new Setting(containerEl)
+      .setName('Text font size')
+      .setDesc('Used for the main text (default 16).')
+      .addText(text => text.setPlaceholder('16')
+        .setValue((this.plugin.settings.textNormal || '') + '')
+        .onChange((value) => {
+          this.plugin.settings.textNormal = parseFloat(value);
+          this.plugin.saveData(this.plugin.settings);
+          this.plugin.setFontSize();
+        }));
+
+    new Setting(containerEl)
+      .setName('Small font size')
+      .setDesc('Used for text in the sidebars and tabs (default 13).')
+      .addText(text => text.setPlaceholder('13')
+        .setValue((this.plugin.settings.textSmall || '') + '')
+        .onChange((value) => {
+          this.plugin.settings.textSmall = parseFloat(value);
+          this.plugin.saveData(this.plugin.settings);
+          this.plugin.refresh();
+        }));
+
+    new Setting(containerEl)
+      .setName('Line height')
+      .setDesc('Line height of text (default 1.5).')
+      .addText(text => text.setPlaceholder('1.5')
+        .setValue((this.plugin.settings.lineHeight || '') + '')
+        .onChange((value) => {
+          this.plugin.settings.lineHeight = parseFloat(value);
+          this.plugin.saveData(this.plugin.settings);
+          this.plugin.refresh();
+        }));
+
+    new Setting(containerEl)
+      .setName('Normal line width')
+      .setDesc('Number of characters per line (default 40).')
+      .addText(text => text.setPlaceholder('40')
+        .setValue((this.plugin.settings.lineWidth || '') + '')
+        .onChange((value) => {
+          this.plugin.settings.lineWidth = parseInt(value.trim());
+          this.plugin.saveData(this.plugin.settings);
+          this.plugin.refresh();
+        }));
+
+    new Setting(containerEl)
+      .setName('Wide line width')
+      .setDesc('Number of characters per line for wide elements (default 50).')
+      .addText(text => text.setPlaceholder('50')
+        .setValue((this.plugin.settings.lineWidthWide || '') + '')
+        .onChange((value) => {
+          this.plugin.settings.lineWidthWide = parseInt(value.trim());
+          this.plugin.saveData(this.plugin.settings);
+          this.plugin.refresh();
+        }));
+
+    new Setting(containerEl)
+      .setName('Maximum line width %')
+      .setDesc('Percentage of space inside a pane that a line can fill (default 88).')
+      .addText(text => text.setPlaceholder('88')
+        .setValue((this.plugin.settings.maxWidth || '') + '')
+        .onChange((value) => {
+          this.plugin.settings.maxWidth = parseInt(value.trim());
+          this.plugin.saveData(this.plugin.settings);
+          this.plugin.refresh();
+        }));
+
+    new Setting(containerEl)
+      .setName('Editor font')
+      .setDesc('Overrides the text font defined in Obsidian Appearance settings when in edit mode.')
+      .addText(text => text.setPlaceholder('')
+        .setValue((this.plugin.settings.editorFont || '') + '')
+        .onChange((value) => {
+          this.plugin.settings.editorFont = value;
+          this.plugin.saveData(this.plugin.settings);
+          this.plugin.refresh();
+        }));
   }
 }
